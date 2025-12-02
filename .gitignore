@@ -208,3 +208,5 @@ __marimo__/
 
 tmp.ipynb
 data/
+
+src/esm2-650M-model/
