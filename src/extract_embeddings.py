@@ -52,7 +52,8 @@ def extract_embeddings(sequences: list[str], model: EsmModel, tokenizer: EsmToke
         np.ndarray: Array of embeddings of shape [num_sequences, hidden_size] with mean_pooled embeddings
     """
 
-    
+    if len(sequences) == 0:
+        raise ValueError("No sequences provided for embedding extraction")
     all_embeddings = []
 
     for i in tqdm(range(0, len(sequences), batch_size)):
@@ -128,7 +129,6 @@ def process_sequences_from_csv(csv_path: str, model_path: str, output_path: str,
 
     print("Saving embeddings...")
     protein_ids = df["id"].tolist()
-    print("Protein IDs saved successfully")
     save_embeddings(protein_ids, embeddings, output_path)
     print("Embeddings saved successfully!")
 
