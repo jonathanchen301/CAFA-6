@@ -2,6 +2,8 @@
 Extract embeddings from protein sequences using ESM2-650M model
 """
 
+import os
+
 from transformers import EsmModel, EsmTokenizer
 import torch
 import numpy as np
