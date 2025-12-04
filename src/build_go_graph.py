@@ -8,10 +8,10 @@ def parse_obo(path: str) -> list[dict]:
     Parse the OBO file and return a list of terms
 
     Args:
-    - path: Path to the OBO file
+        path: Path to the OBO file
     
     Returns:
-    - terms: List of terms
+        terms: List of terms
 
     Example:
     ```
@@ -73,10 +73,10 @@ def build_go_graph(terms: list[dict]) -> nx.DiGraph:
     Build the GO graph from the list of terms extracted
 
     Args:
-    - terms: List of terms extracted from the OBO file
+        terms: List of terms extracted from the OBO file
 
     Returns:
-    - G: NetworkX directed graph
+        G: NetworkX directed graph
     """
     # IDs in which it is actually a [term] inside the OBO file
     valid_ids = set(term["id"] for term in terms)
@@ -97,11 +97,11 @@ def save_go_graph(G: nx.DiGraph, path: str) -> None:
     Save GO graph using pickle
 
     Args:
-    - G: NetworkX directed graph
-    - path: Path to save the GO graph
+        G: NetworkX directed graph
+        path: Path to save the GO graph
 
     Returns:
-    - None
+        None
     """
 
     if not os.path.exists(os.path.dirname(path)):
