@@ -42,20 +42,11 @@ def load_esm2_model(model_path: str, device: str = "cuda") -> tuple[EsmModel, Es
 def extract_embeddings(sequences: list[str], model: EsmModel, tokenizer: EsmTokenizer, device: str = "cuda", batch_size: int = 32) -> np.ndarray:
     """
     Extract embeddings from protein sequences in batches using the ESM2-650M model.
-
-    Args:
-        sequences: List of protein sequences
-        model: ESM2-650M Model
-        tokenizer: ESM2-650M Tokenizer
-        device: Device to use for the model
-        batch_size: Batch size for the model
-
-    Returns:
-        np.ndarray: Array of embeddings of shape [num_sequences, hidden_size] with mean_pooled embeddings
     """
-
     if len(sequences) == 0:
         raise ValueError("No sequences provided for embedding extraction")
+    
+    model.eval()
     all_embeddings = []
 
     for i in tqdm(range(0, len(sequences), batch_size)):
@@ -65,6 +56,7 @@ def extract_embeddings(sequences: list[str], model: EsmModel, tokenizer: EsmToke
             batch_sequences,
             padding=True,
             truncation=True,
+            max_length=1024,
             return_tensors="pt"
         )
 
@@ -77,13 +69,18 @@ def extract_embeddings(sequences: list[str], model: EsmModel, tokenizer: EsmToke
                 attention_mask=attention_mask
             )
 
+        # Mean pool directly without storing full hidden_states
         hidden_states = outputs.last_hidden_state
-
         sum_embeddings = (hidden_states * attention_mask.unsqueeze(-1)).sum(dim=1)
         sum_mask = attention_mask.sum(dim=1, keepdim=True).clamp(min=1)
         mean_pooled = sum_embeddings / sum_mask
-
+        
+        # Move to CPU and clear GPU memory immediately
         all_embeddings.append(mean_pooled.cpu().numpy())
+        
+        # Explicitly delete tensors to free GPU memory
+        del outputs, hidden_states, sum_embeddings, sum_mask, mean_pooled, input_ids, attention_mask
+        torch.cuda.empty_cache()  # Clear GPU cache
 
     return np.vstack(all_embeddings)
 
